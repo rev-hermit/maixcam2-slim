@@ -17,6 +17,8 @@ All notable changes to this project are documented here.
 
 ### Changed / 変更
 
+- README を英語先頭（English first）に再構成。日本語セクションは後半に維持
+  README restructured with English first; the Japanese section follows.
 - `/root/models` を空に、デモアプリ 44 個を削除、`site-packages` を 231 → 28 エントリへ
   Emptied `/root/models`, removed 44 demo apps, reduced `site-packages` from 231 to 28 entries.
 - rootfs 使用量 10,500 MB -> 約 3,100 MB（空き 2.3 MB -> 約 6,500 MB）
