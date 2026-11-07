@@ -12,12 +12,17 @@ Instructions for building the minimal firmware and kernel.
 
 | Item | Value |
 |---|---|
-| OS | Ubuntu 22.04 / 24.04 / 26.04 (requires loop mount + ext4 tools) |
+| **Build OS** | Ubuntu 22.04 / 24.04 / 26.04 — Linux required (loop mount + ext4 tools) |
 | Disk space | 30 GB or more free |
 | Privileges | `sudo` access for editing the rootfs |
 | Base image | Official `maixcam2-2026-05-29-maixpy-v4.12.5.img` (10,793,779,200 bytes) |
 | Toolchain | `gcc-arm-9.2-2019.12` aarch64 |
 | SDK | `sipeed/maix_ax620e_sdk` (with git submodules) |
+
+> **Build on Linux; flashing can be done elsewhere.**
+> `make prepare`/`slim`/`patch` need `loop` mount and ext4 tools, so the build
+> host must be Linux. The resulting `out/maixcam2-slim.img` can be flashed from
+> **Windows** (Win32DiskImager) or **Linux** (`dd`) — see [FLASH.md](FLASH.md).
 
 ### 2. Required Packages
 
@@ -102,12 +107,18 @@ This board does **not** use standard MBR/GPT partitioning. Partitions are define
 
 | 項目 | 要件 |
 |---|---|
-| OS | Ubuntu 22.04 / 24.04 / 26.04（loop mount および ext4 ツールが必要） |
+| **ビルド OS** | Ubuntu 22.04 / 24.04 / 26.04 — Linux 必須（loop mount と ext4 ツール） |
 | 空き容量 | 30 GB 以上 |
 | 権限 | rootfs 編集用の `sudo` 権限 |
 | ベースイメージ | 公式 `maixcam2-2026-05-29-maixpy-v4.12.5.img`（10,793,779,200 バイト） |
 | ツールチェーン | `gcc-arm-9.2-2019.12` aarch64 |
 | SDK | `sipeed/maix_ax620e_sdk`（サブモジュール含む） |
+
+> **ビルドは Linux、書き込みは別環境でも可。**
+> `make prepare` / `slim` / `patch` は `loop` マウントと ext4 ツールを使うため、
+> ビルド環境は Linux が必要です。完成した `out/maixcam2-slim.img` の書き込みは
+> **Windows**（Win32DiskImager）または **Linux**（`dd`）で行えます
+> （[FLASH.md](FLASH.md) 参照）。
 
 ### 2. 必要パッケージのインストール
 

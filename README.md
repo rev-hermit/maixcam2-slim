@@ -85,12 +85,17 @@ Retained components:
 
 | Item | Value |
 |---|---|
-| OS | Ubuntu 22.04 / 24.04 / 26.04 (requires loop mount + ext4 tools) |
-| Disk space | 30 GB or more free |
-| Privileges | `sudo` access for editing rootfs |
+| **Build OS** | Ubuntu 22.04 / 24.04 / 26.04 — Linux required (loop mount + ext4 tools) |
+| Disk space | 30 GB or more free (build) |
+| Privileges | `sudo` access for editing the rootfs |
 | Base image | Official `maixcam2-2026-05-29-maixpy-v4.12.5.img` (10,793,779,200 bytes) |
 | Toolchain | `gcc-arm-9.2-2019.12` aarch64 |
 | SDK | `sipeed/maix_ax620e_sdk` (with git submodules) |
+
+> **The build runs on Linux. Flashing does not have to.**
+> Editing the image needs `loop` mount and ext4 tools, so the build host must be
+> Linux. The finished `out/maixcam2-slim.img` can then be flashed from
+> **Windows** (Win32DiskImager, recommended) or **Linux** (`dd`).
 
 ```bash
 sudo apt-get update
@@ -128,8 +133,9 @@ out/maixcam2-slim.img
 
 ### Flashing
 
-See [docs/FLASH.md](docs/FLASH.md). Use **Win32DiskImager** (Rufus rejects this image
-due to the board's custom partition table).
+See [docs/FLASH.md](docs/FLASH.md).
+Flashing runs on **Windows** (**Win32DiskImager**, recommended) or **Linux** (`dd`).
+Rufus rejects this image due to the board's custom partition table.
 
 ```powershell
 winget install Win32diskimager.win32diskimager
@@ -317,12 +323,17 @@ NPU 推論。基本システムはそのまま保持し、追加の肥大化要�
 
 | 項目 | 要件 |
 |---|---|
-| OS | Ubuntu 22.04 / 24.04 / 26.04（loop mount および ext4 ツールが必要） |
-| 空き容量 | 30 GB 以上 |
+| **ビルド OS** | Ubuntu 22.04 / 24.04 / 26.04 — Linux 必須（loop mount と ext4 ツール） |
+| 空き容量 | 30 GB 以上（ビルド用） |
 | 権限 | rootfs 編集用の `sudo` 権限 |
 | ベースイメージ | 公式 `maixcam2-2026-05-29-maixpy-v4.12.5.img`（10,793,779,200 バイト） |
 | ツールチェーン | `gcc-arm-9.2-2019.12` aarch64 |
 | SDK | `sipeed/maix_ax620e_sdk`（サブモジュール含む） |
+
+> **ビルドは Linux、書き込みは Windows でも可。**
+> イメージの編集に `loop` マウントと ext4 ツールが必要なため、ビルド環境は Linux です。
+> 完成した `out/maixcam2-slim.img` の書き込みは **Windows**（Win32DiskImager、推奨）
+> または **Linux**（`dd`）で行えます。
 
 ```bash
 sudo apt-get update
@@ -361,7 +372,8 @@ out/maixcam2-slim.img
 ### 書き込み手順
 
 詳細は [docs/FLASH.md](docs/FLASH.md) を参照してください。
-**Win32DiskImager** を使用します（Rufus は独自パーティションレイアウトのため非対応です）。
+書き込みは **Windows**（**Win32DiskImager**、推奨）または **Linux**（`dd`）で行えます。
+Rufus は独自パーティションレイアウトのため非対応です。
 
 ```powershell
 winget install Win32diskimager.win32diskimager

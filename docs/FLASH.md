@@ -8,6 +8,10 @@ Guide for flashing the minimal image to the MaixCAM2 eMMC storage.
 
 ## English
 
+**Where to run this:** the build must run on **Linux** (loop mount + ext4 tools).
+Flashing can be done on **Windows** (Win32DiskImager, recommended) or
+**Linux** (`dd`). This page covers flashing only.
+
 ### ⚠️ Important Notice
 
 - **Flashing will completely erase all data on the eMMC.** Back up important files first.
@@ -86,6 +90,10 @@ systemctl --failed
 ---
 
 ## 日本語
+
+**実行環境:** ビルドは **Linux** が必要です（loop マウントと ext4 ツール）。
+書き込みは **Windows**（Win32DiskImager、推奨）または **Linux**（`dd`）で行えます。
+このページは書き込み手順のみを扱います。
 
 ### ⚠️ 注意事項
 
