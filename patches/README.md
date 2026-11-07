@@ -16,7 +16,7 @@ Silences verbose kernel log output at boot.
 
 | Target file | Changes |
 |---|---|
-| `rwnx_platform.c` | Replaced unconditional `printk` calls in `get_txpwr_max()`, `set_txpwr_loss_ofst()`, `rwnx_load_firmware()`, and userconfig upload with `AICWFDBG(LOGDEBUG, ...)`. These can now be silenced with `aicwf_dbg_level=1`. |
+| `rwnx_platform.c` | Replaced unconditional `printk` calls in `get_txpwr_max()`, `set_txpwr_loss_ofst()`, `rwnx_load_firmware()`, and userconfig upload with `AICWFDBG(LOGDEBUG, ...)`. These can now be suppressed with `aicwf_dbg_level=1`. |
 | `aic_btsdio.h` | Changed `AICBT_DBG_FLAG` from 1 to 0 to disable per-frame logging. |
 | `btsdio.c` / `aic_btsdio.c` | Changed per-frame `AICBT_INFO` to `AICBT_DBG`. |
 | `ax-panel-simple.c` | Removed per-DCS-command hex dump (`print_hex_dump` / `"send success, cmd:"`). |

@@ -13,7 +13,7 @@ All notable changes to this project are documented here.
 #### Added
 - Build scripts to create a minimal firmware from the official 2026-05-29 image (`make check`, `prepare`, `slim`, `patch`, `kernel`, `write-kernel`, `verify`).
 - Rootfs patches: Wi-Fi AP mode fix (`wifi.sh`), A/B update scripts (`update_kernel.sh`, `update_dtb.sh`), and optimized configurations (`systemd`, `sysctl`, `journald`, `fstab`).
-- Kernel patch for boot/runtime log quieting (suppresses verbose Wi-Fi, Bluetooth, panel, and touch logs).
+- Kernel patch for log-noise reduction (suppresses verbose Wi-Fi, Bluetooth, panel, and touch logs).
 
 #### Changed
 - Restructured README with English first, followed by the Japanese section.
@@ -36,7 +36,7 @@ All notable changes to this project are documented here.
 #### 追加
 - 公式 2026-05-29 イメージを最小化するビルドスクリプト一式（`make check` / `prepare` / `slim` / `patch` / `kernel` / `write-kernel` / `verify`）。
 - rootfs パッチ（`wifi.sh` AP モード修正、A/B スロット対応更新スクリプト、systemd / sysctl / journald / fstab の最適化）。
-- カーネルログ静音化パッチ（Wi-Fi、Bluetooth、ディスプレイパネル、タッチドライバの冗長ログ抑制を 1 本に集約）。
+- カーネルログ抑制パッチ（Wi-Fi、Bluetooth、ディスプレイパネル、タッチドライバの冗長ログ抑制を 1 本に集約）。
 
 #### 変更
 - README を英語先頭（English first）の構成に変更し、日本語セクションを後半に配置。

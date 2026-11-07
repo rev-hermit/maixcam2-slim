@@ -4,7 +4,7 @@
 
 Build scripts and kernel patches that turn the **official Sipeed MaixCAM2 image**
 into a **minimal firmware** (no demo apps, no multi-GB models, no unused Python
-packages) running an **up-to-date kernel** with a **log-quieting patch**.
+packages) running an **up-to-date kernel** with a **log-noise reduction patch**.
 
 > This project is **unofficial** and not affiliated with Sipeed.
 > It is **not a fork** of any Sipeed repository.
@@ -17,9 +17,9 @@ packages) running an **up-to-date kernel** with a **log-quieting patch**.
 
 ### What it does
 
-**In one sentence:** the image shrinks from **10.5 GB to 3.1 GB** and the
-launcher goes from **46 apps to 2** (Settings & App Store), while the kernel
-becomes **newer** and **quieter**.
+**In one sentence:** the image shrinks from **10.5 GB to 3.1 GB**, the launcher
+goes from **46 apps to 2** (Settings & App Store), and the kernel is **updated**
+with **much less boot-time log noise**.
 
 | Item | Official 2026-05-29 | After this script |
 |---|---:|---:|
@@ -28,7 +28,7 @@ becomes **newer** and **quieter**.
 | Apps | 46 installed | `settings` / `app_store` (+ `launcher` shell) |
 | AI models | 4.39 GB | 0 (`/root/models` emptied) |
 | Python packages | 2.0 GB / 231 | 135 MB / 28 |
-| Kernel | 2026-05-29 | **HEAD + log-quieting patch** |
+| Kernel | 2026-05-29 | **HEAD + log-noise reduction patch** |
 | Boot-time dmesg | ~888 lines | **~510 lines** |
 
 #### What it means in practice
@@ -48,7 +48,7 @@ speech, image generation, YOLO variants) and their heavy Python dependencies
 (`torch`, `transformers`, `diffusers`, etc.) are removed. Demos requiring them will
 not run until models are downloaded again.
 
-**The kernel is updated and silenced.** While the official image runs a 2026-05-29
+**The kernel is updated and its boot logs are much shorter.** While the official image runs a 2026-05-29
 kernel, this build tracks upstream `main` (2026-10-22 at time of writing), incorporating
 UART DMA fixes, UVC stability, and aic8800 monitor-mode support. In addition, roughly
 **370 lines** of repetitive boot-time kernel log spam are eliminated.
@@ -242,7 +242,7 @@ Third-party components inside the base image remain under their respective licen
 ## 日本語
 
 Sipeed MaixCAM2 の**公式イメージを最小化**し、**最新カーネル**と
-**ログ静音化パッチ**を適用するためのビルドスクリプトおよびパッチです。
+**ログ抑制パッチ**を適用するためのビルドスクリプトおよびパッチです。
 
 > 本プロジェクトは**非公式**であり、Sipeed 社とは一切関係ありません。
 > Sipeed リポジトリの **フォーク（fork）ではありません**。
@@ -252,7 +252,7 @@ Sipeed MaixCAM2 の**公式イメージを最小化**し、**最新カーネル*
 ### 何が変わるか
 
 **ひとことで言うと:** イメージが **10.5 GB から 3.1 GB** に縮小し、ランチャーの表示は
-**46 個から 2 個**（Settings と App Store）になり、カーネルは **より新しく、静音** になります。
+**46 個から 2 個**（Settings と App Store）になり、カーネルが **新しくなって起動時のログが大幅に減ります**。
 
 | 項目 | 公式 2026-05-29 | 本スクリプト適用後 |
 |---|---:|---:|
@@ -261,7 +261,7 @@ Sipeed MaixCAM2 の**公式イメージを最小化**し、**最新カーネル*
 | アプリ数 | 46 個 | `settings` / `app_store`（+ `launcher` シェル） |
 | AI モデル | 4.39 GB | 0（`/root/models` を空に） |
 | Python パッケージ | 2.0 GB / 231 個 | 135 MB / 28 個 |
-| カーネル | 2026-05-29 | **HEAD + ログ静音化パッチ** |
+| カーネル | 2026-05-29 | **HEAD + ログ抑制パッチ** |
 | 起動時 dmesg ログ行数 | 約 888 行 | **約 510 行** |
 
 #### 具体的な変化
@@ -281,7 +281,7 @@ App Store から再インストール可能です。
 パッケージ（`torch`, `transformers`, `diffusers` 等）を削除します。これらに依存するデモは、
 モデルを再取得するまで動作しません。
 
-**カーネルが新しく、静かになります。** 公式イメージ同梱の 2026-05-29 カーネルに対し、
+**カーネルが新しくなり、起動時のログが大幅に減ります。** 公式イメージ同梱の 2026-05-29 カーネルに対し、
 本ビルドは上流の `main` ブランチ（作成時点: 2026-10-22）を採用しています。
 UART DMA の修正、UVC 動作の安定化、aic8800 のモニターモード修正などが含まれます。
 さらに、起動時に出ていた冗長なログを約 **370 行** 削減します。
