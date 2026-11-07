@@ -5,6 +5,7 @@ cd "$(dirname "$0")/.."
 source scripts/common.sh
 
 OUT_IMG=${OUT_IMG:-out/maixcam2-slim.img}
+KERNEL_BIN=${KERNEL_BIN:-out/boot_signed.bin}
 [ -f "$OUT_IMG" ] || die "OUT_IMG がありません: $OUT_IMG"
 
 require_root
@@ -15,11 +16,21 @@ log "image"
 ls -l "$OUT_IMG"
 sha256sum "$OUT_IMG"
 
-log "partition / kernel"
-echo -n "p14 kernel: "
-dd if="$OUT_IMG" bs=65536 skip=$((KERNEL_OFF / 65536)) count=200 status=none | head -c 8559216 | sha256sum
-echo -n "p15 kernel (base): "
-dd if="$OUT_IMG" bs=65536 skip=$((KERNEL_B_OFF / 65536)) count=200 status=none | head -c 8556368 | sha256sum
+log "kernel slots"
+if [ -f "$KERNEL_BIN" ]; then
+    klen=$(stat -c %s "$KERNEL_BIN")
+    src_sha=$(sha256sum "$KERNEL_BIN" | awk '{print $1}')
+    img_sha=$(sha256_range "$OUT_IMG" "$KERNEL_OFF" "$klen")
+    info "p14 (slot A) : $img_sha"
+    if [ "$src_sha" = "$img_sha" ]; then
+        info "  -> $KERNEL_BIN と一致"
+    else
+        info "  -> 不一致（$KERNEL_BIN = $src_sha）"
+    fi
+else
+    info "p14 (slot A) : $KERNEL_BIN が無いためスキップ"
+fi
+info "p15 (slot B) : $(sha256_range "$OUT_IMG" "$KERNEL_B_OFF" "$BASE_KERNEL_LEN")"
 
 log "rootfs"
 check_ext4_at "$OUT_IMG" "$ROOT_OFF"
@@ -29,7 +40,7 @@ info "--- apps ---"
 ls "$MNT/maixapp/apps"
 info "--- app.info ---"
 grep -E '^\[' "$MNT/maixapp/apps/app.info" || true
-info "--- models ---"
+info "--- models (should be empty) ---"
 ls -A "$MNT/root/models" || true
 info "--- site-packages ($(ls "$MNT/usr/local/lib/python3.13/site-packages" | wc -l) entries) ---"
 ls "$MNT/usr/local/lib/python3.13/site-packages"

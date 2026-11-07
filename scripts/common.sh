@@ -48,3 +48,20 @@ check_ext4_at() {
     magic=$(od -An -tx1 -j $((off + 1080)) -N 2 "$img" | tr -d ' \n')
     [ "$magic" = "53ef" ] || die "ext4 マジックが見つかりません (offset=$off, magic=$magic)"
 }
+
+# イメージ内の指定範囲の SHA-256 を返す
+# （dd | head は SIGPIPE で pipefail に引っかかるため、一時ファイル経由にする）
+sha256_range() {
+    local img="$1" off="$2" len="$3"
+    [ $((off % 65536)) -eq 0 ] || die "offset は 64KiB 境界である必要があります: $off"
+    local tmp blocks
+    blocks=$(( (len + 65535) / 65536 ))
+    tmp=$(mktemp)
+    dd if="$img" bs=65536 skip=$((off / 65536)) count="$blocks" status=none of="$tmp"
+    truncate -s "$len" "$tmp"
+    sha256sum "$tmp" | awk '{print $1}'
+    rm -f "$tmp"
+}
+
+# 2026-05-29 ベースイメージの boot_signed.bin のサイズ（B スロット確認用）
+BASE_KERNEL_LEN=8556368

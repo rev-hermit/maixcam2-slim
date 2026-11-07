@@ -6,7 +6,7 @@ source scripts/common.sh
 
 log "必須コマンド"
 missing=0
-for c in dd od mount umount e2fsck resize2fs losetup awk sed grep tar make gcc python3 git; do
+for c in dd od truncate mount umount e2fsck resize2fs losetup awk sed grep tar make gcc python3 git; do
     if command -v "$c" >/dev/null 2>&1; then
         info "OK   $c"
     else
