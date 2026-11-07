@@ -60,13 +60,19 @@ export SRC_IMG=/path/to/maixcam2-2026-05-29-maixpy-v4.12.5.img
 
 ```bash
 make check          # Verify environment (ext4 magic, required tools, disk space)
-make prepare        # Copy base image to out/
-make slim           # Remove demo apps, models, and unnecessary packages
-make patch          # Apply configs, scripts, and boot partition settings
+sudo make prepare   # Copy base image to out/ (root; ownership returned to you)
+sudo make slim      # Remove demo apps, models, and unnecessary packages (root)
+sudo make patch     # Apply configs, scripts, and boot partition settings (root)
 make kernel         # Clone SDK -> update kernel to HEAD -> patch -> build -> sign
-make write-kernel   # Write compiled kernel to p14 (slot A)
-make verify         # Verify resulting image integrity
+sudo make write-kernel   # Write compiled kernel to p14 (slot A)
+sudo make verify    # Verify resulting image integrity
 ```
+
+> **Only the image-editing steps need root.**
+> `prepare` / `slim` / `patch` / `write-kernel` / `verify` mount or write the image,
+> so they need `sudo`. `make kernel` only builds the SDK — run it as your normal
+> user so the SDK and build artifacts stay yours.
+> Running everything with `sudo` also works, but the SDK will be owned by root.
 
 > `make kernel` clones the SDK; the initial run downloads several GB and takes 10+ minutes. Set `SDK_DIR` to reuse an existing checkout.
 
@@ -156,13 +162,19 @@ export SRC_IMG=/path/to/maixcam2-2026-05-29-maixpy-v4.12.5.img
 
 ```bash
 make check          # 環境確認（ext4 マジック、必要ツール、空き容量）
-make prepare        # 公式イメージを out/ へコピー
-make slim           # デモアプリ・モデル・不要パッケージの削除
-make patch          # 設定ファイル・スクリプト・boot 設定の適用
-make kernel         # SDK 取得 → カーネル HEAD 更新 → パッチ適用 → ビルド → 署名
-make write-kernel   # ビルドしたカーネルを p14（A スロット）へ書き込み
-make verify         # 成果物イメージの検証
+sudo make prepare   # 公式イメージを out/ へコピー（要 root。所有者は呼び出し元へ戻す）
+sudo make slim      # デモアプリ・モデル・不要パッケージの削除（要 root）
+sudo make patch     # 設定ファイル・スクリプト・boot 設定の適用（要 root）
+make kernel         # SDK 取得 → カーネル HEAD 更新 → パッチ適用 → ビルド → 署名（root 不要）
+sudo make write-kernel   # ビルドしたカーネルを p14（A スロット）へ書き込み
+sudo make verify    # 成果物イメージの検証
 ```
+
+> **root が必要なのはイメージを編集する処理だけです。**
+> `prepare` / `slim` / `patch` / `write-kernel` / `verify` はイメージをマウント・書き込みするため
+> `sudo` が必要です。`make kernel` は SDK をビルドするだけなので、**通常ユーザーで実行**してください
+> （SDK とビルド成果物が root 所有になるのを避けられます）。
+> すべて `sudo` で実行しても動作しますが、SDK が root 所有になります。
 
 > 初回の `make kernel` は SDK のクローンで数 GB のダウンロードが発生し、10 分以上かかります。既存の SDK がある場合は `SDK_DIR` を指定することで再利用できます。
 

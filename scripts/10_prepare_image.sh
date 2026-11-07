@@ -24,5 +24,13 @@ info "size : $sz"
 [ "$sz" = "$EXPECTED_IMG_SIZE" ] || info "警告: 想定サイズと異なります"
 check_ext4_at "$OUT_IMG" "$ROOT_OFF"
 info "ext4 : OK"
+
+# sudo 経由で作成した場合、out/ が root 所有になり
+# 非 root の `make kernel` が書き込めなくなる。呼び出し元へ返す。
+if [ -n "${SUDO_UID:-}" ] && [ -n "${SUDO_GID:-}" ]; then
+    chown "$SUDO_UID:$SUDO_GID" out "$OUT_IMG" 2>/dev/null || true
+    info "out/ の所有者を ${SUDO_UID}:${SUDO_GID} に変更"
+fi
+
 sha256sum "$OUT_IMG"
 info "OUT_IMG=$OUT_IMG"

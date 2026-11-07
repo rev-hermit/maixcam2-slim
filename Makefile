@@ -1,13 +1,13 @@
 # MaixCAM2 slim image build / MaixCAM2 最小イメージ ビルド
 #
 #   make check        環境確認
-#   make prepare      公式イメージを out/ にコピー
-#   make slim         rootfs を最小化
-#   make patch        rootfs / boot へパッチ適用
-#   make kernel       カーネルをビルド（SDK 取得 + パッチ + 署名）
-#   make write-kernel ビルドしたカーネルを p14 へ書き込み
-#   make verify       成果物を検証
-#   make image        prepare + slim + patch + (kernel があれば) write-kernel
+#   sudo make prepare 公式イメージを out/ にコピー（要 root）
+#   sudo make slim    rootfs を最小化（要 root）
+#   sudo make patch   rootfs / boot へパッチ適用（要 root）
+#   make kernel       カーネルをビルド（SDK 取得 + パッチ + 署名）※ root 不要
+#   sudo make write-kernel ビルドしたカーネルを p14 へ書き込み（要 root）
+#   sudo make verify  成果物を検証（要 root）
+#   sudo make image   prepare + slim + patch + (kernel があれば) write-kernel（要 root）
 #
 # 環境変数:
 #   SRC_IMG      公式 .img のパス（必須）
