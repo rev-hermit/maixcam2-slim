@@ -17,6 +17,9 @@ packages) running an **up-to-date kernel** with **log-quieting patches**.
 
 ### What it does
 
+**In one sentence:** the image shrinks from **10.5 GB to 3.1 GB** and from
+**dozens of apps to 2**, while the kernel becomes **newer** and **quieter**.
+
 | Item | Official 2026-05-29 | After this script |
 |---|---:|---:|
 | rootfs usage | 10,500 MB (2.3 MB free) | ~3,100 MB (~6,500 MB free) |
@@ -26,6 +29,39 @@ packages) running an **up-to-date kernel** with **log-quieting patches**.
 | Python packages | 2.0 GB / 231 | 135 MB / 28 |
 | Kernel | 2026-05-29 | **HEAD + log-quieting patches** |
 | Boot-time dmesg | ~888 lines | **~510 lines** |
+
+#### What it means in practice
+
+**It becomes usable.** The official image ships every demo, every AI model and
+every Python package those demos might need. It fills its 10.5 GB partition
+completely — only **2.3 MB** is free. You cannot install anything or save a
+photo until something is deleted. After this script you have **6.5 GB** free,
+and **~26 GB** after `resize2fs` on the 29 GB eMMC.
+
+**The app list gets short.** The launcher shows only **Settings** and
+**App Store**. The demo apps are gone, but they can be reinstalled from
+App Store whenever you want them back.
+
+**The heavy demos and their models are gone.** 4.39 GB of models (LLM, VLM,
+speech, image generation, YOLO variants) and the Python packages behind them
+(`torch`, `transformers`, `diffusers`, ...) are removed. Demos that need them
+will not run until you download the models again.
+
+**The kernel is newer and quieter.** The image ships a 2026-05-29 kernel; this
+build uses upstream `main` (2026-10-22 at the time of writing), which includes
+UART DMA, UVC and aic8800 monitor-mode fixes. On top of that, about **370 lines**
+of boot-time log spam are removed.
+
+**What keeps working:** launcher, Settings, Wi-Fi, USB networking
+(`10.33.42.1` / `10.33.43.1`), display, touch, camera and NPU. The base system
+is untouched — only optional parts are removed.
+
+#### Who is this for?
+
+- **Good fit:** a device dedicated to one job (single-app appliance), anyone who
+  needs free storage, anyone who wants the newer kernel.
+- **Bad fit:** someone who wants to try every bundled demo right after flashing.
+  Use the official image instead, or reinstall apps from App Store.
 
 Removed:
 
@@ -219,6 +255,9 @@ Sipeed MaixCAM2 の**公式イメージを最小化**し、**最新カーネル*
 
 ### 何が変わるか
 
+**ひとことで言うと:** イメージが **10.5GB → 3.1GB**、アプリが **多数 → 2個** になり、
+カーネルは **新しく・静か** になります。
+
 | 項目 | 公式 2026-05-29 | このスクリプト適用後 |
 |---|---:|---:|
 | rootfs 使用量 | 10,500 MB（空き 2.3 MB） | 約 3,100 MB（空き 約 6,500 MB） |
@@ -228,6 +267,37 @@ Sipeed MaixCAM2 の**公式イメージを最小化**し、**最新カーネル*
 | Python パッケージ | 2.0 GB / 231 | 135 MB / 28 |
 | カーネル | 2026-05-29 | **HEAD + ログ静音化パッチ** |
 | 起動時 dmesg | 約 888 行 | **約 510 行** |
+
+#### 具体的にどう変わるか
+
+**「使える」状態になります。** 公式イメージはデモ・AIモデル・そのための Python パッケージを
+全部載せているため、10.5GB のパーティションをほぼ埋めています（空き **2.3MB**）。
+何かを消さない限り、アプリの追加も写真の保存もできません。
+このスクリプト適用後は **6.5GB** 空き、29GB の eMMC で `resize2fs` すれば **約26GB** 空きます。
+
+**アプリ一覧が短くなります。** ランチャーに表示されるのは **Settings** と
+**App Store** だけです。デモアプリは消えますが、必要になったら App Store から
+入れ直せます。
+
+**重いデモとモデルが消えます。** 4.39GB のモデル（LLM / VLM / 音声 / 画像生成 /
+YOLO 各種）と、それらが使う Python パッケージ（`torch`, `transformers`,
+`diffusers` など）を削除します。該当するデモは、モデルを再取得するまで動きません。
+
+**カーネルが新しく、静かになります。** 公式は 2026-05-29 のカーネルですが、
+このビルドは上流 `main`（作成時点 2026-10-22）を使います。UART DMA、UVC、
+aic8800 の monitor モード修正などが入っています。
+さらに起動時のログ約 **370 行** を削除します。
+
+**そのまま動くもの:** ランチャー、設定、Wi-Fi、USB ネットワーク
+（`10.33.42.1` / `10.33.43.1`）、画面、タッチ、カメラ、NPU。
+基本システムには手を入れておらず、任意の部分だけを削っています。
+
+#### 向いている人 / 向いていない人
+
+- **向いている:** 1つの用途に特化した端末にしたい、空き容量が欲しい、
+  新しいカーネルを使いたい。
+- **向いていない:** 焼いた直後に同梱デモを一通り試したい。
+  その場合は公式イメージを使うか、App Store からアプリを入れ直してください。
 
 削除するもの:
 
