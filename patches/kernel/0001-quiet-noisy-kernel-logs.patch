@@ -1,6 +1,6 @@
-From 19823ef5438e0f4f202f5f8b2db1ed07ab2a72ee Mon Sep 17 00:00:00 2001
-From: sumasa <sumasa@localhost>
-Date: Sun, 8 Nov 2026 00:37:35 +0900
+From 350f55703a7f3807b82ff0493dd68fa893668912 Mon Sep 17 00:00:00 2001
+From: rev-hermit <rev-hermit@users.noreply.github.com>
+Date: Sun, 8 Nov 2026 01:00:32 +0900
 Subject: [PATCH] quiet noisy kernel logs
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
