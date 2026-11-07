@@ -129,7 +129,54 @@ resize2fs /dev/mmcblk0p17      # 29GB に拡張
 - ベースイメージのバージョンが変わると、パッチやオフセットの調整が必要になる場合があります。
 - ライセンスは [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) を参照。
 
+## 上流 / Upstream
+
+**このリポジトリは Sipeed のリポジトリの fork ではありません。**
+Sipeed とは無関係の、独立した非公式スクリプト集です。
+ベースイメージや SDK は含まず、利用者が各自ダウンロードしたものに対して処理を行います。
+
+**This project is NOT a fork of any Sipeed repository.**
+It is an independent, unofficial collection of scripts. It bundles no vendor
+binaries; it operates on files that you download yourself.
+
+### MaixCAM2 / Sipeed
+
+| 名前 / Name | リンク / Link | 用途 / Purpose |
+|---|---|---|
+| **MaixCAM2 System / OS** | <https://wiki.sipeed.com/hardware/en/maixcam/maixcam2_os.html> | 公式イメージの入手・焼き方 / official images & flashing |
+| MaixCAM2 FAQ | <https://wiki.sipeed.com/hardware/en/maixcam/maixcam2_faq.html> | トラブルシュート / troubleshooting |
+| Sipeed ダウンロード | <https://dl.sipeed.com/> | ツール類 / tools |
+| AXDL（Windows） | <https://dl.sipeed.com/fileList/MaixCAM/MaixCAM2/Software/Tools/AXDL_V1.24.22.1.7z> | `.axp` 書き込み・復旧 / flashing & recovery |
+| AXDL ドライバ | <https://dl.sipeed.com/fileList/MaixCAM/MaixCAM2/Software/Tools/Driver_V1.20.46.1.7z> | 同上 / same |
+
+### ソース / Source
+
+| 名前 / Name | リンク / Link | 用途 / Purpose |
+|---|---|---|
+| `sipeed/maix_ax620e_sdk` | <https://github.com/sipeed/maix_ax620e_sdk> | カーネル・rootfs のビルド / build |
+| `sipeed/maix_ax620e_sdk_kernel` | <https://github.com/sipeed/maix_ax620e_sdk_kernel> | **パッチ対象のカーネル** / kernel we patch |
+| `sipeed/maix_ax620e_sdk_msp` | <https://github.com/sipeed/maix_ax620e_sdk_msp> | メディア/NPU ミドルウェア / middleware |
+| `sipeed/MaixPy` | <https://github.com/sipeed/MaixPy> | MaixPy 本体 / runtime |
+| ARM GNU Toolchain | <https://developer.arm.com/downloads/-/gnu-a> | aarch64 ツールチェーン / toolchain |
+
+> カーネルパッチ（`patches/kernel/`）は `sipeed/maix_ax620e_sdk_kernel` の
+> `main`（確認時点: `f0c18b62`, 2026-10-22）に対して作成しています。
+> The kernel patches target `sipeed/maix_ax620e_sdk_kernel` `main`
+> (`f0c18b62` as of 2026-10-22).
+
+### 謝辞 / Acknowledgements
+
+Sipeed、Axera、および関連 OSS の開発者に感謝します。
+Thanks to Sipeed, Axera, and all upstream OSS developers.
+
+---
+
 ## License
 
 本リポジトリの**スクリプトとパッチ**は MIT。
 ベースイメージに含まれる第三者の成果物は、それぞれのライセンスに従います。
+詳細は [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) を参照してください。
+
+The **scripts and patches** in this repository are MIT.
+Third-party components inside the base image remain under their own licenses;
+see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
