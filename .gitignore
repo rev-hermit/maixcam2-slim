@@ -1,0 +1,16 @@
+# ビルド成果物 / build outputs
+out/
+*.img
+*.img.bak-*
+*.axp
+
+# 作業用 / scratch
+*.log
+*.tmp
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/

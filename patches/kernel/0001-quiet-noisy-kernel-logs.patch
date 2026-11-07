@@ -1,0 +1,390 @@
+From 19823ef5438e0f4f202f5f8b2db1ed07ab2a72ee Mon Sep 17 00:00:00 2001
+From: sumasa <sumasa@localhost>
+Date: Sun, 8 Nov 2026 00:37:35 +0900
+Subject: [PATCH] quiet noisy kernel logs
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+日本語:
+起動時に大量に出ていたログを抑制する。動作には影響しない。
+
+  * aic8800: get_txpwr_max() / set_txpwr_loss_ofst() / ファーム読込 /
+    userconfig の無条件 printk を AICWFDBG(LOGDEBUG) へ変更。
+    aicwf_dbg_level=1 で抑制できるようにする。
+  * aic_btsdio: AICBT_DBG_FLAG を 1 -> 0 にし、毎フレームの
+    AICBT_INFO を AICBT_DBG へ変更。
+  * ax-panel-simple: DCS コマンド送信ごとの print_hex_dump
+    ("send success, cmd:") を削除。
+  * hynitron touch: HYN_ENTER() を no-op にし、notifier ログを
+    HYN_INFO2 へ変更。
+
+効果 (MaixCAM2, 2026-05-29 rootfs):
+  dmesg 888 行 -> 510 行
+  get_txpwr_max 15 -> 0
+  aic_btsdio 213 -> 0
+  "send success, cmd:" 97 -> 0
+  [HYN][enter] 20 -> 0
+
+English:
+Silence noisy boot-time kernel logs. No functional change.
+
+  * aic8800: replace unconditional printk in get_txpwr_max(),
+    set_txpwr_loss_ofst(), firmware load and userconfig upload with
+    AICWFDBG(LOGDEBUG) so aicwf_dbg_level=1 can suppress them.
+  * aic_btsdio: set AICBT_DBG_FLAG to 0 and downgrade per-frame
+    AICBT_INFO calls to AICBT_DBG.
+  * ax-panel-simple: drop the per-DCS-command print_hex_dump
+    ("send success, cmd:").
+  * hynitron touch: make HYN_ENTER() a no-op and move notifier logs
+    to HYN_INFO2.
+
+Effect (MaixCAM2, 2026-05-29 rootfs):
+  dmesg 888 -> 510 lines
+  get_txpwr_max 15 -> 0
+  aic_btsdio 213 -> 0
+  "send success, cmd:" 97 -> 0
+  [HYN][enter] 20 -> 0
+
+Error-path logs are preserved.
+---
+ .../drivers/gpu/drm/panel/ax-panel-simple.c   |  3 +-
+ .../drivers/input/touchscreen/hyn/hyn_core.h  |  2 +-
+ .../hyn_driver_release_qm/hyn_core.c          |  4 +--
+ .../hyn_driver_release_qm/hyn_core.h          |  2 +-
+ .../aic8800/aic8800_fdrv/aic_btsdio.c         | 28 +++++++++----------
+ .../aic8800/aic8800_fdrv/aic_btsdio.h         |  2 +-
+ .../wireless/aic8800/aic8800_fdrv/btsdio.c    | 18 ++++++------
+ .../aic8800/aic8800_fdrv/rwnx_platform.c      | 14 +++++-----
+ 8 files changed, 36 insertions(+), 37 deletions(-)
+
+diff --git a/linux/linux-4.19.125/drivers/gpu/drm/panel/ax-panel-simple.c b/linux/linux-4.19.125/drivers/gpu/drm/panel/ax-panel-simple.c
+index 700cbba02..637538d35 100644
+--- a/linux/linux-4.19.125/drivers/gpu/drm/panel/ax-panel-simple.c
++++ b/linux/linux-4.19.125/drivers/gpu/drm/panel/ax-panel-simple.c
+@@ -369,8 +369,7 @@ static int panel_send_dsi_cmds(struct mipi_dsi_device *dsi, u8 *data, int len)
+ 			return -EINVAL;
+ 		}
+ 
+-		print_hex_dump(KERN_DEBUG, "send success, cmd: ", DUMP_PREFIX_NONE,
+-		               16, 1, &data[i], cmd_len + 3, false);
++		/* per-command hex dump removed: too noisy in dmesg */
+ 
+ 		if (delay)
+ 			mdelay(delay);
+diff --git a/linux/linux-4.19.125/drivers/input/touchscreen/hyn/hyn_core.h b/linux/linux-4.19.125/drivers/input/touchscreen/hyn/hyn_core.h
+index 45bd19e8d..420e8a1f0 100644
+--- a/linux/linux-4.19.125/drivers/input/touchscreen/hyn/hyn_core.h
++++ b/linux/linux-4.19.125/drivers/input/touchscreen/hyn/hyn_core.h
+@@ -64,7 +64,7 @@
+ #define HYN_INFO3(fmt, args...)  if(hyn_data->log_level > 1)printk(KERN_INFO "[HYN]"fmt"\n", ##args)
+ #define HYN_INFO4(fmt, args...)  if(hyn_data->log_level > 2)printk(KERN_INFO "[HYN]"fmt"\n", ##args)
+ #define HYN_ERROR(fmt, args...)  printk(KERN_ERR "[HYN][Error]%s:"fmt"\n",__func__,##args)
+-#define HYN_ENTER()              printk(KERN_ERR "[HYN][enter]%s\n",__func__)
++#define HYN_ENTER()              do { } while (0)
+ 
+ // #if HYN_GKI_VER
+ //     MODULE_IMPORT_NS(VFS_internal_I_am_really_a_filesystem_and_am_NOT_a_driver);
+diff --git a/linux/linux-4.19.125/drivers/input/touchscreen/hyn_driver_release_qm/hyn_core.c b/linux/linux-4.19.125/drivers/input/touchscreen/hyn_driver_release_qm/hyn_core.c
+index 75c045e41..1136666d0 100644
+--- a/linux/linux-4.19.125/drivers/input/touchscreen/hyn_driver_release_qm/hyn_core.c
++++ b/linux/linux-4.19.125/drivers/input/touchscreen/hyn_driver_release_qm/hyn_core.c
+@@ -587,9 +587,9 @@ static int fb_notifier_callback(struct notifier_block *self, unsigned long event
+ 
+     blank_value = *((int *)blank_data);
+ 
+-    HYN_INFO("notifier,event:%lu,blank:%d", event, blank_value);
++    HYN_INFO2("notifier,event:%lu,blank:%d", event, blank_value);
+     if (hyn_data->old_fb_state == blank_value) {
+-        HYN_INFO("don't care");
++        HYN_INFO2("don't care");
+         return 0;
+     }
+ 
+diff --git a/linux/linux-4.19.125/drivers/input/touchscreen/hyn_driver_release_qm/hyn_core.h b/linux/linux-4.19.125/drivers/input/touchscreen/hyn_driver_release_qm/hyn_core.h
+index 40aef65ae..6b6dc04ed 100644
+--- a/linux/linux-4.19.125/drivers/input/touchscreen/hyn_driver_release_qm/hyn_core.h
++++ b/linux/linux-4.19.125/drivers/input/touchscreen/hyn_driver_release_qm/hyn_core.h
+@@ -76,7 +76,7 @@
+ #define HYN_INFO3(fmt, args...)  if(hyn_data->log_level > 1)printk(KERN_INFO "[HYN]"fmt"\n", ##args)
+ #define HYN_INFO4(fmt, args...)  if(hyn_data->log_level > 2)printk(KERN_INFO "[HYN]"fmt"\n", ##args)
+ #define HYN_ERROR(fmt, args...)  printk(KERN_ERR "[HYN][Error]%s:"fmt"\n",__func__,##args)
+-#define HYN_ENTER()              printk(KERN_ERR "[HYN][enter]%s\n",__func__)
++#define HYN_ENTER()              do { } while (0)
+ 
+ #if HYN_GKI_VER
+     // MODULE_IMPORT_NS(VFS_internal_I_am_really_a_filesystem_and_am_NOT_a_driver);
+diff --git a/linux/linux-4.19.125/drivers/net/wireless/aic8800/aic8800_fdrv/aic_btsdio.c b/linux/linux-4.19.125/drivers/net/wireless/aic8800/aic8800_fdrv/aic_btsdio.c
+index 3dfbf8784..b2eccded8 100755
+--- a/linux/linux-4.19.125/drivers/net/wireless/aic8800/aic8800_fdrv/aic_btsdio.c
++++ b/linux/linux-4.19.125/drivers/net/wireless/aic8800/aic8800_fdrv/aic_btsdio.c
+@@ -79,7 +79,7 @@ static void print_acl(struct sk_buff *skb, int direction)
+     u16 len = *(handle+1);
+     //u8 *acl_data = (u8 *)(skb->data);
+ 
+-    AICBT_INFO("aic %s: direction %d, handle %04x, len %d",
++    AICBT_DBG("aic %s: direction %d, handle %04x, len %d",
+             __func__, direction, *handle, len);
+ #endif
+ }
+@@ -92,7 +92,7 @@ static void print_sco(struct sk_buff *skb, int direction)
+     u8 len = *(u8 *)(handle+1);
+     //u8 *sco_data =(u8 *)(skb->data);
+ 
+-    AICBT_INFO("aic %s: direction %d, handle %04x, len %d,wlength %d",
++    AICBT_DBG("aic %s: direction %d, handle %04x, len %d,wlength %d",
+             __func__, direction, *handle, len,wlength);
+ #endif
+ }
+@@ -843,7 +843,7 @@ static int btchr_close(struct inode  *inode_p, struct file   *file_p)
+     struct btusb_data *data;
+     struct hci_dev *hdev;
+ 
+-    AICBT_INFO("%s: BT sdio char device is closing", __func__);
++    AICBT_DBG("%s: BT sdio char device is closing", __func__);
+     /* Not open unless wanna tracing log */
+     /* trace_printk("%s: close....\n", __func__); */
+ 
+@@ -947,7 +947,7 @@ void btchr_external_write(char* buff, int len){
+ 	int i;
+ 	struct btusb_data *data;
+ 
+-	AICBT_INFO("%s \r\n", __func__);
++	AICBT_DBG("%s \r\n", __func__);
+ 	for(i=0;i<len;i++){
+ 		printk("0x%x ",(u8)buff[i]);
+ 	}
+@@ -1114,10 +1114,10 @@ static long btchr_ioctl(struct file *file_p,unsigned int cmd, unsigned long arg)
+     //data = GET_DRV_DATA(hdev);
+     //fw_info = data->fw_info;
+ 
+-    AICBT_INFO(" btchr_ioctl DOWN_FW_CFG with Cmd:%d",cmd);
++    AICBT_DBG(" btchr_ioctl DOWN_FW_CFG with Cmd:%d",cmd);
+     switch (cmd) {
+         case DOWN_FW_CFG:
+-            AICBT_INFO(" btchr_ioctl DOWN_FW_CFG");
++            AICBT_DBG(" btchr_ioctl DOWN_FW_CFG");
+             /*ret = usb_autopm_get_interface(data->intf);
+             if (ret < 0){
+                 goto failed;
+@@ -1140,20 +1140,20 @@ static long btchr_ioctl(struct file *file_p,unsigned int cmd, unsigned long arg)
+             wake_up_interruptible(&bt_dlfw_wait);
+             return 1;
+         case DWFW_CMPLT:
+-            AICBT_INFO(" btchr_ioctl DWFW_CMPLT");
++            AICBT_DBG(" btchr_ioctl DWFW_CMPLT");
+ #if 1
+ 	case SET_ISO_CFG:
+-            AICBT_INFO("btchr_ioctl SET_ISO_CFG");
++            AICBT_DBG("btchr_ioctl SET_ISO_CFG");
+ 		if(copy_from_user(&(hdev->voice_setting), (__u16*)arg, sizeof(__u16))){
+-			AICBT_INFO(" voice settings err");
++			AICBT_DBG(" voice settings err");
+ 		}
+ 		//hdev->voice_setting = *(uint16_t*)arg;
+-		AICBT_INFO(" voice settings = %d", hdev->voice_setting);
++		AICBT_DBG(" voice settings = %d", hdev->voice_setting);
+ 		//return 1;
+ #endif
+         case GET_USB_INFO:
+ 			//ret = download_patch(fw_info,1);
+-            AICBT_INFO(" btchr_ioctl GET_USB_INFO");
++            AICBT_DBG(" btchr_ioctl GET_USB_INFO");
+             /*ret = hdev->open(hdev);
+             if(ret < 0){
+                 AICBT_ERR("%s:Failed in hdev->open(hdev):%d",__func__,ret);
+@@ -1164,7 +1164,7 @@ static long btchr_ioctl(struct file *file_p,unsigned int cmd, unsigned long arg)
+             wake_up_interruptible(&bt_dlfw_wait);
+             return 1;
+         case RESET_CONTROLLER:
+-            AICBT_INFO(" btchr_ioctl RESET_CONTROLLER");
++            AICBT_DBG(" btchr_ioctl RESET_CONTROLLER");
+             //reset_controller(fw_info);
+             return 1;
+         default:
+@@ -1210,7 +1210,7 @@ int btchr_init()
+     int res = 0;
+     struct device *dev;
+ 
+-    AICBT_INFO("Register sdio char device interface for BT driver");
++    AICBT_DBG("Register sdio char device interface for BT driver");
+     /*
+      * btchr mutex is used to sync between
+      * 1) downloading patch and opening bt char driver
+@@ -1261,7 +1261,7 @@ err_alloc:
+ 
+ void btchr_exit(void)
+ {
+-    AICBT_INFO("Unregister sdio char device interface for BT driver");
++    AICBT_DBG("Unregister sdio char device interface for BT driver");
+ 
+     device_destroy(bt_char_class, bt_devid);
+     cdev_del(&bt_char_dev);
+diff --git a/linux/linux-4.19.125/drivers/net/wireless/aic8800/aic8800_fdrv/aic_btsdio.h b/linux/linux-4.19.125/drivers/net/wireless/aic8800/aic8800_fdrv/aic_btsdio.h
+index 7e8c04765..ee3cbc730 100755
+--- a/linux/linux-4.19.125/drivers/net/wireless/aic8800/aic8800_fdrv/aic_btsdio.h
++++ b/linux/linux-4.19.125/drivers/net/wireless/aic8800/aic8800_fdrv/aic_btsdio.h
+@@ -31,7 +31,7 @@
+ #define PRINT_ACL_DATA          1
+ #define PRINT_SCO_DATA          1
+ 
+-#define AICBT_DBG_FLAG          1
++#define AICBT_DBG_FLAG          0
+ 
+ #if AICBT_DBG_FLAG
+ #define AICBT_DBG(fmt, arg...) printk( "aic_btsdio: " fmt "\n" , ## arg)
+diff --git a/linux/linux-4.19.125/drivers/net/wireless/aic8800/aic8800_fdrv/btsdio.c b/linux/linux-4.19.125/drivers/net/wireless/aic8800/aic8800_fdrv/btsdio.c
+index 81c5c1ae1..14153b8e1 100755
+--- a/linux/linux-4.19.125/drivers/net/wireless/aic8800/aic8800_fdrv/btsdio.c
++++ b/linux/linux-4.19.125/drivers/net/wireless/aic8800/aic8800_fdrv/btsdio.c
+@@ -86,7 +86,7 @@ static int btsdio_tx_packet(struct btsdio_data *data, struct sk_buff *skb)
+ {
+ 	int err;
+ 
+-	AICBT_INFO("%s", data->hdev->name);
++	AICBT_DBG("%s", data->hdev->name);
+ 
+ 	/* Prepend Type-A header */
+ 	skb_push(skb, 1);
+@@ -112,7 +112,7 @@ static void btsdio_work(struct work_struct *work)
+ 	struct sk_buff *skb;
+ 	int err;
+ 
+-	AICBT_INFO("%s,%s", data->hdev->name,__func__);
++	AICBT_DBG("%s,%s", data->hdev->name,__func__);
+ 
+ 
+ 	while ((skb = skb_dequeue(&data->txq))) {
+@@ -159,7 +159,7 @@ int bt_sdio_recv(u8 *data,u32 data_len)
+ 		//kfree_skb(skb);
+ 		///return 0;
+ 	//}
+-	AICBT_INFO("skb type %d",type);
++	AICBT_DBG("skb type %d",type);
+ 	//bt_data_dump("bt_skb", skb, skb->len);
+ 	ret = hci_recv_frame(hdev, skb);
+ 	if(ret < 0){
+@@ -175,7 +175,7 @@ static int btsdio_open(struct hci_dev *hdev)
+ 	//struct btsdio_data *data = hci_get_drvdata(hdev);
+ 	int err = 0;
+ 
+-	AICBT_INFO("%s", hdev->name);
++	AICBT_DBG("%s", hdev->name);
+ 
+ 	return err;
+ }
+@@ -184,7 +184,7 @@ static int btsdio_close(struct hci_dev *hdev)
+ {
+ 	//struct btsdio_data *data = hci_get_drvdata(hdev);
+ 
+-	AICBT_INFO("%s,%s", hdev->name,__func__);
++	AICBT_DBG("%s,%s", hdev->name,__func__);
+ 
+ 	return 0;
+ }
+@@ -193,7 +193,7 @@ static int btsdio_flush(struct hci_dev *hdev)
+ {
+ 	struct btsdio_data *data = hci_get_drvdata(hdev);
+ 
+-	AICBT_INFO("%s,%s", hdev->name,__func__);
++	AICBT_DBG("%s,%s", hdev->name,__func__);
+ 
+ 	skb_queue_purge(&data->txq);
+ 
+@@ -204,7 +204,7 @@ static int btsdio_send_frame(struct hci_dev *hdev, struct sk_buff *skb)
+ {
+ 	struct btsdio_data *data = hci_get_drvdata(hdev);
+ 
+-	AICBT_INFO("%s,%s", hdev->name,__func__);
++	AICBT_DBG("%s,%s", hdev->name,__func__);
+ 
+ 	switch (hci_skb_pkt_type(skb)) {
+ 	case HCI_COMMAND_PKT:
+@@ -236,7 +236,7 @@ int btsdio_init(void)
+ 	struct hci_dev *hdev;
+ 	int err;
+ 
+-	AICBT_INFO("%s", __func__);
++	AICBT_DBG("%s", __func__);
+ 
+ 
+ 	data = kzalloc(sizeof(struct btsdio_data), GFP_KERNEL);
+@@ -284,7 +284,7 @@ void btsdio_remove(void)
+     }
+ 	data = hci_get_drvdata(hdev);
+ 
+-	AICBT_INFO("btsdio_remove");
++	AICBT_DBG("btsdio_remove");
+ 
+ 	if (!data)
+ 		return;
+diff --git a/linux/linux-4.19.125/drivers/net/wireless/aic8800/aic8800_fdrv/rwnx_platform.c b/linux/linux-4.19.125/drivers/net/wireless/aic8800/aic8800_fdrv/rwnx_platform.c
+index bedbb7672..7af100cd0 100755
+--- a/linux/linux-4.19.125/drivers/net/wireless/aic8800/aic8800_fdrv/rwnx_platform.c
++++ b/linux/linux-4.19.125/drivers/net/wireless/aic8800/aic8800_fdrv/rwnx_platform.c
+@@ -607,7 +607,7 @@ static int rwnx_load_firmware(u32 **fw_buf, const char *name, struct device *dev
+ 	int size = 0;
+ 	int ret = 0;
+ 
+-	printk("%s: request firmware = %s \n", __func__ ,name);
++	AICWFDBG(LOGDEBUG, "%s: request firmware = %s\n", __func__, name);
+ 
+ 	ret = request_firmware(&fw, name, NULL);
+ 
+@@ -636,7 +636,7 @@ static int rwnx_load_firmware(u32 **fw_buf, const char *name, struct device *dev
+ 	MD5Init(&md5);
+ 	MD5Update(&md5, (unsigned char *)buffer, size);
+ 	MD5Final(&md5, decrypt);
+-	printk(MD5PINRT, MD5(decrypt));
++	AICWFDBG(LOGDEBUG, MD5PINRT, MD5(decrypt));
+ 
+ 	release_firmware(fw);
+ 
+@@ -1066,7 +1066,7 @@ s8_l get_txpwr_max(s8_l power)
+ 	    }
+ 	}
+ 
+-	printk("%s:txpwr_max:%d \r\n",__func__,power);
++	AICWFDBG(LOGDEBUG, "%s:txpwr_max:%d\r\n", __func__, power);
+ 	return power;
+ }
+ 
+@@ -1123,7 +1123,7 @@ void set_txpwr_loss_ofst(s8_l value)
+ 			userconfig_info.txpwr_lvl_v2.pwrlvl_11ax_2g4[i] += value;
+ 	    }
+ 	}
+-	printk("%s:value:%d\r\n", __func__, value);
++	AICWFDBG(LOGDEBUG, "%s:value:%d\r\n", __func__, value);
+ }
+ 
+ 
+@@ -2313,7 +2313,7 @@ int rwnx_plat_userconfig_upload_android(struct rwnx_hw *rwnx_hw, char *fw_path,
+     int size;
+     u32 *dst=NULL;
+ 
+-	printk("userconfig file path:%s \r\n", filename);
++	AICWFDBG(LOGDEBUG, "userconfig file path:%s\r\n", filename);
+ 
+     /* load aic firmware */
+     size = aic_load_firmware(&dst, fw_path ,filename, NULL);
+@@ -2325,7 +2325,7 @@ int rwnx_plat_userconfig_upload_android(struct rwnx_hw *rwnx_hw, char *fw_path,
+     }
+ 
+ 	/* Copy the file on the Embedded side */
+-    printk("### Upload %s userconfig, size=%d\n", filename, size);
++    AICWFDBG(LOGDEBUG, "### Upload %s userconfig, size=%d\n", filename, size);
+ 
+ 	rwnx_plat_userconfig_parsing(rwnx_hw, (char *)dst, size);
+ 
+@@ -2334,7 +2334,7 @@ int rwnx_plat_userconfig_upload_android(struct rwnx_hw *rwnx_hw, char *fw_path,
+         dst = NULL;
+     }
+ 
+-	printk("userconfig download complete\n\n");
++	AICWFDBG(LOGDEBUG, "userconfig download complete\n\n");
+ 
+ 	return 0;
+ 
+-- 
+2.53.0
+

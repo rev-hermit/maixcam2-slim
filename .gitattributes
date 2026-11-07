@@ -1,0 +1,12 @@
+# リポジトリ内は LF に正規化する（Linux でそのまま実行できるように）
+# Normalize to LF inside the repository so scripts run on Linux as-is.
+* text=auto eol=lf
+
+*.sh    text eol=lf
+Makefile text eol=lf
+*.patch text eol=lf
+*.md    text eol=lf
+
+*.img   binary
+*.axp   binary
+*.ko    binary

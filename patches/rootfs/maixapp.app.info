@@ -1,0 +1,20 @@
+[basic]
+version=1
+[app_store]
+name=App Store
+name[zh]=应用商店
+icon=/maixapp/apps/app_store/assets/app_store.json
+version=1.1.1
+exec=app_store
+author=Sipeed Ltd
+desc=APP store, to install new applications
+desc[zh]=应用商店，用来安装新的应用程序
+[settings]
+name=Settings
+name[zh]=设置
+icon=/maixapp/apps/settings/assets/settings.json
+version=1.1.4
+exec=settings
+author=Sipeed Ltd
+desc=Sytem settings
+desc[zh]=系统设置
