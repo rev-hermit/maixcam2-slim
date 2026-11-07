@@ -1,5 +1,5 @@
 #!/bin/bash
-# 完成したイメージを検証する / Verify the resulting image
+# 完成したイメージの整合性を検証する / Verify the resulting image
 set -euo pipefail
 cd "$(dirname "$0")/.."
 source scripts/common.sh
